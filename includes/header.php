@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
 require_once dirname(__DIR__)."/middleware/auth.php";
 
 ?>
@@ -22,19 +23,23 @@ require_once dirname(__DIR__)."/middleware/auth.php";
                 <li>
                     <a href="#">Categories</a>
                     <ul class="submenu">
+                        <li><a href="<?=BASE_URL."?category=all"?>">all</a></li>
                         <?php
-                            $file = file_get_contents(ASSETS_URL."json/categories.json");
-                            $json = json_decode($file,true);
-                            $categories = $json["categories"];
-                            foreach ($categories as $index => $value) {
-                                echo "<li title=\"$index\"><a href=\"".BASE_URL."?category=$value\">$value</a></li>";
-                            }
+                            $getCategories = "SELECT * FROM categories WHERE user_id = '$id'";
+                            $resCategories = mysqli_query($conn,$getCategories);
                         ?>
+
+                        <?php if(mysqli_num_rows($resCategories) >= 0) :?>
+                            <?php while($category = mysqli_fetch_assoc($resCategories)) :?>
+                                <li><a href=<?=BASE_URL."?category={$category["name"]}"?>><?=$category["name"] ?></a></li>
+                            <?php endwhile ;?>
+                        <?php endif; ?>
                     </ul>
                 </li>
                 <li><a href=<?= START_URL."categories/index.php" ?>>Edit Categories</a></li>
                 <li><a href=<?= START_URL."products/add_product.php" ?>>Add Product</a></li>
-                <li><a href=<?= START_URL."orders/index.php" ?>>Orders</a></li>
+                <li><a href=<?= START_URL."profile/index.php" ?>>Profile</a></li>
+                <li><a href=<?= START_URL."auth/logout.php" ?>>Logout</a></li>
             </ul>
         </nav>
     </header>

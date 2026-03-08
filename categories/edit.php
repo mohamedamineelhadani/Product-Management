@@ -1,3 +1,9 @@
+<?php
+require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
+require_once dirname(__DIR__)."/middleware/auth.php";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +12,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      background: #2c3e50;
       padding: 40px;
     }
 
@@ -40,7 +46,7 @@
 
     input[type="submit"] {
       padding: 10px;
-      background-color: #4CAF50;
+      background-color: #2c3e50;
       color: white;
       border: none;
       border-radius: 6px;
@@ -53,7 +59,7 @@
       text-align: center;
       margin-top: 15px;
       text-decoration: none;
-      color: #2196F3;
+      color: #2c3e50;
     }
 
     .back:hover {
@@ -66,20 +72,15 @@
   <div class="container">
     <h2>Edit Category</h2>
     <?php
-        $index = $_GET['index'];
-        $file = file_get_contents("categories.json");
-        $json = json_decode($file,true);
-        $categories = $json["categories"];
-        foreach($categories as $ind => $value){
-            if($ind == $index){
-                $name =$value;
-            }
-        }
+        $categoryId = $_GET['categoryId'];
+        $getCategorie = "SELECT * FROM categories WHERE user_id = '$id' AND id ='$categoryId'";
+        $resCategorie = mysqli_query($conn,$getCategorie);
+        $category = mysqli_fetch_assoc($resCategorie);
     ?>
 
     <form action="update.php" method="post">
-      <input hidden type="number" name="index" value="<?= $index ?>">
-      <input type="text" name="name" value="<?= $name ?>" required>
+      <input hidden type="number" name="categoryId" value="<?= $category["id"] ?>">
+      <input type="text" name="name" value="<?= $category["name"] ?>" required>
       <input type="submit" value="Update Category">
     </form>
 

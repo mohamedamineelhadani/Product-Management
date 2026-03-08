@@ -1,14 +1,16 @@
 <?php
-include '../config/db.php';
-include '../includes/header.php';
+require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
+require_once dirname(__DIR__)."/middleware/auth.php";
 ?>
 
+<?php require_once dirname(__DIR__)."/includes/header.php"; ?>
 <div class="product-form">
     <h2>Add New Product</h2>
-    <form action="process_product.php" method="post" enctype="multipart/form-data">
+    <form class="add-form" action="process_product.php" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="name_fr">French Name:</label>
-            <input type="text" id="name_fr" name="name_fr" required>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
         </div>
         
         <div class="form-group">
@@ -28,7 +30,7 @@ include '../includes/header.php';
         
         <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description"></textarea>
+            <textarea id="description" name="description" required></textarea>
         </div>
         
         <div class="form-group">
@@ -39,16 +41,16 @@ include '../includes/header.php';
         <div class="form-group">
             <label for="category">Category:</label>
             <select id="category" name="category" required>
-                <option value="">Select a category</option>
                 <?php
-                    $file= file_get_contents("../assets/json/categories.json");
-                    $json =json_decode($file,true);
-                    $categories = $json["categories"];
+                    $getCategories = "SELECT * FROM categories WHERE user_id = '$id'";
+                    $resCategories = mysqli_query($conn,$getCategories);
                 ?>
-                <?php foreach($categories as $index => $value) :?>
-                    <option value="<?=$value?>" title="<?=$index?>"><?=$value?></option>
-                <?php endforeach; ?>
-                <option value="other">Other</option>
+
+                <?php if(mysqli_num_rows($resCategories) >= 0) :?>
+                    <?php while($category = mysqli_fetch_assoc($resCategories)) :?>
+                        <option value="<?=$category["id"]?>"><?= $category["name"] ;?></option>
+                    <?php endwhile ;?>
+                <?php endif; ?>
             </select>
         </div>
         
@@ -69,7 +71,14 @@ include '../includes/header.php';
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="btn submit">Add Product</button>
+            <?php
+                $check = mysqli_query($conn,"SELECT * FROM categories WHERE user_id = '$id'");
+            ?>
+            <?php if(mysqli_num_rows($check) > 0) :?>
+              <button type="submit" class="btn submit">Add Product</button>
+            <?php else :?>
+                <a href=<?= START_URL."categories/index.php"?> class="btn submit">Create Categories</a>
+            <?php endif ;?>            
             <a href="index.php" class="btn cancel">Cancel</a>
         </div>
     </form>
@@ -82,67 +91,13 @@ quantity.addEventListener("input",function(){
     const quantityValue =Number(quantity.value);
     if(quantityValue > 0){
         status.value="available";
-    }else if(quantityValue <= 0){
+    }else if(quantityValue == 0){
         status.value="Out of Stock";
+    }else{
+        quantity.value=0;
+        alert("It cannot be below zero");
     }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-
-    const form = document.querySelector('.product-form form');
-    form.addEventListener('submit', function(e) {
-        const nameFr = document.getElementById('name_fr').value.trim();
-        const nameAr = document.getElementById('name_ar').value.trim();
-        const price = document.getElementById('price').value;
-        const category = document.getElementById('category').value;
-        const quantity = document.getElementById('quantity').value;
-        const image = document.getElementById('image').files[0];
-
-
-        if (!nameFr || !nameAr) {
-            alert('Both French and Arabic names are required');
-            e.preventDefault();
-            return;
-        }
-        
-
-        if (isNaN(price) || parseFloat(price) <= 0) {
-            alert('Please enter a valid price');
-            e.preventDefault();
-            return;
-        }
-        
-        if (!category) {
-            alert('Please select a category');
-            e.preventDefault();
-            return;
-        }
-        
-
-        if (isNaN(quantity) || parseInt(quantity) < 0) {
-            alert('Please enter a valid quantity');
-            e.preventDefault();
-            return;
-        }
-        
-        if (image) {
-            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            const maxSize = 2 * 1024 * 1024;
-            
-            if (!validTypes.includes(image.type)) {
-                alert('Only JPG, PNG, and JPEG images are allowed');
-                e.preventDefault();
-                return;
-            }
-            
-            if (image.size > maxSize) {
-                alert('Image size must be less than 2MB');
-                e.preventDefault();
-                return;
-            }
-        }
-    });
 });
 </script>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once dirname(__DIR__)."/includes/footer.php"; ?>

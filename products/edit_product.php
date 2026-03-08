@@ -1,12 +1,30 @@
 <?php
-include '../config/db.php';
-include '../includes/header.php';
+require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
+require_once dirname(__DIR__)."/middleware/auth.php";
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $query = "SELECT * FROM products WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-    $product = mysqli_fetch_assoc($result);
+
+if (isset($_GET['productId'])) {
+    $productId = $_GET['productId'];
+    $getProduct = "SELECT
+            C.name as category,
+            P.id,
+            P.name, 
+            P.name_ar,
+            P.other_names,
+            P.description,
+            P.post,
+            P.price,
+            P.quantity,
+            P.image,
+            P.status,
+            P.created_at,
+            P.updated_at
+        FROM products P INNER JOIN categories C ON P.category_id = C.id
+        WHERE P.user_id = '$id' AND C.user_id = '$id' AND P.id = '$productId'
+    ";
+    $resProduct = mysqli_query($conn, $getProduct);
+    $product = mysqli_fetch_assoc($resProduct);
     
     if (!$product) {
         header("Location: index.php");
@@ -15,34 +33,35 @@ if (isset($_GET['id'])) {
 }
 ?>
 
+<?php require_once dirname(__DIR__)."/includes/header.php"; ?>
 <div class="product-form">
-    <h2>Add New Product</h2>
+    <h2>Edit Product</h2>
     <form action="process_product.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?= $product['id']; ?>">
         
         <div class="form-group">
-            <label for="name_fr">French Name:</label>
-            <input type="text" id="name_fr" name="name_fr" required value="<?= htmlspecialchars($product['name_fr']); ?>">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required value="<?= $product['name']; ?>">
         </div>
         
         <div class="form-group">
             <label for="name_ar">Arabic Name:</label>
-            <input type="text" id="name_ar" name="name_ar" required value="<?= htmlspecialchars($product['name_ar']); ?>">
+            <input type="text" id="name_ar" name="name_ar" required value="<?= $product['name_ar']; ?>">
         </div>
         
         <div class="form-group">
             <label for="other-names">Other names:</label>
-            <input type="text" id="other-names" name="other-names" required value="<?= htmlspecialchars($product['other_names']); ?>">
+            <input type="text" id="other-names" name="other-names" required value="<?= $product['other_names']; ?>">
         </div>
 
         <div class="form-group">
             <label for="post">Post :</label>
-            <input type="text" id="post" name="post" required value="<?= htmlspecialchars($product['post']); ?>">
+            <input type="text" id="post" name="post" required value="<?= $product['post']; ?>">
         </div>
 
         <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description"><?= htmlspecialchars($product['description']); ?></textarea>
+            <textarea id="description" name="description"><?= $product['description']; ?></textarea>
         </div>
         
         <div class="form-group">
@@ -54,13 +73,15 @@ if (isset($_GET['id'])) {
             <label for="category">Category:</label>
             <select id="category" name="category" required>
                 <?php
-                    $file= file_get_contents("../assets/json/categories.json");
-                    $json =json_decode($file,true);
-                    $categories = $json["categories"];
+                    $getCategories = "SELECT * FROM categories WHERE user_id = '$id'";
+                    $resCategories = mysqli_query($conn,$getCategories);
                 ?>
-                <?php foreach($categories as $index => $value) :?>
-                    <option value="<?=$value?>" <?= $product['category'] == $value ? 'selected' : ''; ?>><?=$value?></option>
-                <?php endforeach; ?>
+
+                <?php if(mysqli_num_rows($resCategories) >= 0) :?>
+                    <?php while($category = mysqli_fetch_assoc($resCategories)) :?>
+                        <option value="<?=$category["id"]?>" <?= $product['category'] == $category["name"] ? 'selected' : ''; ?>><?= $category["name"] ;?></option>
+                    <?php endwhile ;?>
+                <?php endif; ?>
                 <option value="other" <?= $product['category'] == 'other' ? 'selected' : ''; ?>>Other</option>
             </select>
         </div>
@@ -77,7 +98,7 @@ if (isset($_GET['id'])) {
         
         <div class="form-group">
             <label for="image">Product Image:</label>
-            <input type="file" id="image" name="image">
+            <input type="file" id="image" name="image" accept="image/*">
             <?php if (!empty($product['image'])): ?>
                 <p>Current image: <?= $product['image']; ?></p>
             <?php endif; ?>
@@ -85,7 +106,7 @@ if (isset($_GET['id'])) {
         
         <div class="form-actions">
             <button type="submit" class="btn submit">Update Product</button>
-            <a href="<?= 'view_product.php?id='.$product['id'] ?>" class="btn cancel">Cancel</a>
+            <a href="<?= 'view_product.php?productId='.$product['id'] ?>" class="btn cancel">Cancel</a>
         </div>
     </form>
 </div>
@@ -98,10 +119,13 @@ quantity.addEventListener("input",function(){
     const quantityValue =Number(quantity.value);
     if(quantityValue > 0){
         status.value="available";
-    }else if(quantityValue <= 0){
+    }else if(quantityValue == 0){
         status.value="Out of Stock";
+    }else{
+        quantity.value=0;
+        alert("It cannot be below zero");
     }
 });
 </script>
 
-<?php include '../includes/footer.php'; ?>
+<?php require_once dirname(__DIR__)."/includes/footer.php"; ?>

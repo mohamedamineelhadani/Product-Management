@@ -1,23 +1,25 @@
 <?php
-include '../config/db.php';
+require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
+require_once dirname(__DIR__)."/middleware/auth.php";
 
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+
+if (isset($_GET['productId'])) {
+    $productId = intval($_GET['productId']);
     
-    $query = "SELECT image FROM products WHERE id = $id";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    
-    if ($row && !empty($row['image'])) {
-        $image_path = "../assets/images/" . $row['image'];
-        if (file_exists($image_path)) {
-            unlink($image_path);
-        }
+    $uploadDir = ROOT."/assets/images/";
+    $getImage = "SELECT image FROM products WHERE id = '$productId' AND user_id = '$id'";
+    $resImage = mysqli_query($conn, $getImage);
+    $image = mysqli_fetch_assoc($resImage);
+    $imagePath = $uploadDir.$image["image"];
+
+    if ($oldImage && file_exists($imagePath)) {
+        unlink($imagePath);
     }
     
 
-    $query = "DELETE FROM products WHERE id = $id";
-    if (mysqli_query($conn, $query)) {
+    $deleteProduct = "DELETE FROM products WHERE id = '$productId' AND user_id ='$id'";
+    if (mysqli_query($conn, $deleteProduct)) {
         header("Location: index.php");
         exit;
     } else {

@@ -1,15 +1,17 @@
 <?php
-
 require_once dirname(__DIR__)."/config/config.php";
+require_once dirname(__DIR__)."/config/db.php";
+require_once dirname(__DIR__)."/middleware/auth.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = ucfirst($_POST["category"]);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: index.php");
+    exit;
+}
 
-    $file = file_get_contents(ASSETS_URL."json/categories.json");
-    $json = json_decode($file,true);
-    array_push($json["categories"],$name);
+$name = ucfirst($_POST["category"]);
+$addCategory = "INSERT INTO categories (user_id,name) VALUES ('$id','$name')";
 
-    file_put_contents(ASSETS_URL."json/categories.json",json_encode($json,JSON_PRETTY_PRINT));
+if (mysqli_query($conn, $addCategory)) {
     header("location:index.php");
 }
 ?>
