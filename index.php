@@ -106,7 +106,7 @@ require_once __DIR__."/config/config.php";
             Streamline your product workflow, track inventory, and manage your catalog 
             with our intuitive product management system. Everything you need in one place.
         </p>        
-        <a href=<?= BASE_URL ?> class="start-link">Get started →</a>
+        <a href="<?= BASE_URL ?>" class="start-link">Get started →</a>
     </div>
 </body>
 </html>

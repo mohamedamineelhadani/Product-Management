@@ -11,7 +11,7 @@ require_once dirname(__DIR__)."/middleware/auth.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management</title>
-    <link rel="stylesheet" href=<?= ASSETS_URL."css/style.css" ?>>
+    <link rel="stylesheet" href="<?= ASSETS_URL."css/style.css" ?>">
 </head>
 <body>
     <header>
@@ -31,15 +31,15 @@ require_once dirname(__DIR__)."/middleware/auth.php";
 
                         <?php if(mysqli_num_rows($resCategories) >= 0) :?>
                             <?php while($category = mysqli_fetch_assoc($resCategories)) :?>
-                                <li><a href=<?=BASE_URL."?category={$category["name"]}"?>><?=$category["name"] ?></a></li>
+                                <li><a href="<?=BASE_URL."?category={$category["name"]}"?>"><?= $category["name"] ?></a></li>
                             <?php endwhile ;?>
                         <?php endif; ?>
                     </ul>
                 </li>
-                <li><a href=<?= START_URL."categories/index.php" ?>>Edit Categories</a></li>
-                <li><a href=<?= START_URL."products/add_product.php" ?>>Add Product</a></li>
-                <li><a href=<?= START_URL."profile/index.php" ?>>Profile</a></li>
-                <li><a href=<?= START_URL."auth/logout.php" ?>>Logout</a></li>
+                <li><a href="<?= START_URL."categories/index.php" ?>">Edit Categories</a></li>
+                <li><a href="<?= START_URL."products/add_product.php" ?>">Add Product</a></li>
+                <li><a href="<?= START_URL."profile/index.php" ?>">Profile</a></li>
+                <li><a href="<?= START_URL."auth/logout.php" ?>">Logout</a></li>
             </ul>
         </nav>
     </header>

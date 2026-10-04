@@ -41,7 +41,7 @@ $result = mysqli_query($conn, $query);
         <?php while ($row = mysqli_fetch_assoc($result)): ?>
             <div class="product-card">
                 <div class="product-image">
-                    <img src=<?= ASSETS_URL."images/".($row['image'] ?: 'default.png'); ?> alt=<?= $row['name']; ?>>
+                    <img src="<?= ASSETS_URL."images/".($row['image'] ?: 'default.png'); ?>" alt="<?= $row['name']; ?>">
                     <span class="category"><?= ucfirst($row['category']) ?></span>
                 </div>
 

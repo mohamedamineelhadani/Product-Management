@@ -38,7 +38,7 @@ if (!$product) {
 <?php require_once dirname(__DIR__)."/includes/header.php"; ?>
 <div class="product-view">
     <div class="product-image-large">
-        <img src=<?= ASSETS_URL."images/".($product['image'] ?: 'default.png'); ?> alt=<?= $product['name']; ?>>
+        <img src="<?= ASSETS_URL."images/".($product['image'] ?: 'default.png'); ?>" alt="<?= $product['name']; ?>">
     </div>
     <div class="product-details">
         <h2 class="name"><?= $product['name']; ?></h2>
